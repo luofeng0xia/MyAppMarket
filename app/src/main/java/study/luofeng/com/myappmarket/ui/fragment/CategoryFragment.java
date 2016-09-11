@@ -1,6 +1,6 @@
 package study.luofeng.com.myappmarket.ui.fragment;
 
-import study.luofeng.com.myappmarket.net.LoadHelper;
+import study.luofeng.com.myappmarket.event.LoadHelper;
 
 /**
  * 分类

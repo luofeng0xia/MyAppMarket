@@ -5,7 +5,12 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Process;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader;
+import com.bumptech.glide.load.model.GlideUrl;
 import com.google.gson.Gson;
+
+import java.io.InputStream;
 
 import study.luofeng.com.myappmarket.net.MyHttpClient;
 
@@ -35,5 +40,8 @@ public class MyApplication extends Application {
 
         //全局访问网络client
         client = MyHttpClient.createClient();
+
+        //设置glide用okHttp访问网络
+        Glide.get(context).register(GlideUrl.class, InputStream.class,new OkHttpUrlLoader.Factory(client.getOkHttp()));
     }
 }

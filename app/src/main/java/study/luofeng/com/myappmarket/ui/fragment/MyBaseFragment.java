@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import study.luofeng.com.myappmarket.global.MyApplication;
-import study.luofeng.com.myappmarket.net.LoadHelper;
+import study.luofeng.com.myappmarket.event.LoadHelper;
 import study.luofeng.com.myappmarket.ui.view.LoadPager;
 
 /**

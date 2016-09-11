@@ -1,6 +1,6 @@
 package study.luofeng.com.myappmarket.net;
 
-import study.luofeng.com.myappmarket.message.HttpHandler;
+import study.luofeng.com.myappmarket.event.HttpHandler;
 
 /**
  * AsyncResponseHandler

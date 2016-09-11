@@ -1,4 +1,4 @@
-package study.luofeng.com.myappmarket.message;
+package study.luofeng.com.myappmarket.event;
 
 import android.os.Handler;
 import android.os.Message;

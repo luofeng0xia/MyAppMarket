@@ -1,5 +1,7 @@
 package study.luofeng.com.myappmarket.net;
 
+import study.luofeng.com.myappmarket.event.LoadHelper;
+
 /**
  * AsyncResSuccessHandler 把错误和空数据直接封装
  * Created by weixi on 2016/9/9.

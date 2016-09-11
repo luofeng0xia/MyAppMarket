@@ -7,7 +7,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import study.luofeng.com.myappmarket.R;
-import study.luofeng.com.myappmarket.net.LoadHelper;
+import study.luofeng.com.myappmarket.event.LoadHelper;
 import study.luofeng.com.myappmarket.utils.UiUtils;
 
 /**

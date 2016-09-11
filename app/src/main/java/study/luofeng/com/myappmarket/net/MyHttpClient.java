@@ -12,7 +12,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import study.luofeng.com.myappmarket.global.MyConstant;
-import study.luofeng.com.myappmarket.message.HttpHandler;
+import study.luofeng.com.myappmarket.event.HttpHandler;
 
 /**
  * MyHttpClient
@@ -22,6 +22,10 @@ public class MyHttpClient {
 
     private static MyHttpClient client;
     private OkHttpClient okHttp;
+
+    public OkHttpClient getOkHttp() {
+        return okHttp;
+    }
 
     private MyHttpClient(OkHttpClient okHttp) {
         this.okHttp = okHttp;

@@ -20,7 +20,6 @@ public class RecyclerNormalHolder extends RecyclerView.ViewHolder {
     public RatingBar rb_app_star;
     public ImageView iv_app_icon;
     public LinearLayout ll_app_download;
-    public CardView cv_app;
 
     public RecyclerNormalHolder(View itemView) {
         super(itemView);
@@ -30,6 +29,6 @@ public class RecyclerNormalHolder extends RecyclerView.ViewHolder {
         rb_app_star= (RatingBar) itemView.findViewById(R.id.rb_app_star);
         iv_app_icon= (ImageView) itemView.findViewById(R.id.iv_app_icon);
         ll_app_download= (LinearLayout) itemView.findViewById(R.id.ll_app_download);
-        cv_app= (CardView) itemView.findViewById(R.id.cv_app);
+//        cv_app= (CardView) itemView.findViewById(R.id.cv_app);
     }
 }

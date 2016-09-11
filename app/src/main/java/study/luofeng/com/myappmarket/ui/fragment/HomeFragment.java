@@ -4,10 +4,9 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
-
-import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,13 +16,15 @@ import study.luofeng.com.myappmarket.R;
 import study.luofeng.com.myappmarket.adapter.MyRecyclerAdapter;
 import study.luofeng.com.myappmarket.bean.AppInfo;
 import study.luofeng.com.myappmarket.bean.HomeInfo;
+import study.luofeng.com.myappmarket.event.MyOnItemTouchListener;
+import study.luofeng.com.myappmarket.event.RecyclerItemClickHelper;
 import study.luofeng.com.myappmarket.global.MyApplication;
 import study.luofeng.com.myappmarket.global.MyConstant;
-import study.luofeng.com.myappmarket.global.OnLoadMoreListener;
+import study.luofeng.com.myappmarket.event.OnLoadMoreListener;
 import study.luofeng.com.myappmarket.net.AsyncResRefreshHandler;
 import study.luofeng.com.myappmarket.net.AsyncResSuccessHandler;
 import study.luofeng.com.myappmarket.net.AsyncResponseHandler;
-import study.luofeng.com.myappmarket.net.LoadHelper;
+import study.luofeng.com.myappmarket.event.LoadHelper;
 import study.luofeng.com.myappmarket.ui.holder.RecyclerLoadHolder;
 import study.luofeng.com.myappmarket.utils.UiUtils;
 
@@ -66,6 +67,29 @@ public class HomeFragment extends MyBaseFragment implements OnLoadMoreListener {
 
         myRecyclerAdapter = new MyRecyclerAdapter(this.list, recyclerView);
         recyclerView.setAdapter(myRecyclerAdapter);
+
+        // 利用RecyclerView的addOnChildAttachStateChangeListener监听 做的itemClick
+        /*RecyclerItemClickHelper.addOn(recyclerView).
+        setOnItemClickListener(new RecyclerItemClickHelper.OnItemClickListener() {
+            @Override
+            public void onItemClick(RecyclerView recyclerView, int position, View itemView) {
+                Log.d("*****",itemView.toString());
+            }
+        });*/
+
+        // 利用RecyclerView的addOnItemTouchListener事件 做的itemClick
+        recyclerView.addOnItemTouchListener(new MyOnItemTouchListener(recyclerView, new MyOnItemTouchListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Log.d("*****",view.toString()+"position: "+position);
+            }
+
+            @Override
+            public boolean onItemLongClick(View view, int position) {
+                return false;
+            }
+        }));
+
 
         myRecyclerAdapter.setOnLoadMoreListener(this); //设置上拉加载更多监听
 
