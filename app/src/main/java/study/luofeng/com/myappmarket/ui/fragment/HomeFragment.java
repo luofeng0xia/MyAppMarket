@@ -1,5 +1,6 @@
 package study.luofeng.com.myappmarket.ui.fragment;
 
+import android.content.Intent;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -10,12 +11,15 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import study.luofeng.com.myappmarket.R;
 import study.luofeng.com.myappmarket.adapter.MyRecyclerAdapter;
 import study.luofeng.com.myappmarket.bean.AppInfo;
 import study.luofeng.com.myappmarket.bean.HomeInfo;
+import study.luofeng.com.myappmarket.bean.RequestParams;
 import study.luofeng.com.myappmarket.event.MyOnItemTouchListener;
 import study.luofeng.com.myappmarket.event.RecyclerItemClickHelper;
 import study.luofeng.com.myappmarket.global.MyApplication;
@@ -25,7 +29,9 @@ import study.luofeng.com.myappmarket.net.AsyncResRefreshHandler;
 import study.luofeng.com.myappmarket.net.AsyncResSuccessHandler;
 import study.luofeng.com.myappmarket.net.AsyncResponseHandler;
 import study.luofeng.com.myappmarket.event.LoadHelper;
+import study.luofeng.com.myappmarket.ui.activity.AppDetailActivity;
 import study.luofeng.com.myappmarket.ui.holder.RecyclerLoadHolder;
+import study.luofeng.com.myappmarket.ui.holder.RecyclerNormalHolder;
 import study.luofeng.com.myappmarket.utils.UiUtils;
 
 /**
@@ -36,18 +42,21 @@ public class HomeFragment extends MyBaseFragment implements OnLoadMoreListener {
 
     private MyRecyclerAdapter myRecyclerAdapter;
     private ArrayList<AppInfo> list;
+    private List<String> picList;
 
     @Override
     protected void loadFromNet(final LoadHelper helper) {
         list = new ArrayList<>();
+        picList = new ArrayList<>();
         //请求网络
-        MyApplication.client.get(MyConstant.URL_KEY_HOME, list.size(), new AsyncResSuccessHandler(helper) {
-            @Override
-            public void handlerSuccess(String json) {
-                helper.onLoadSuccess(createSuccessView(json));
-                isSuccess = true; //创建成功
-            }
-        });
+        MyApplication.client.get(new RequestParams(MyConstant.URL_KEY_HOME,list.size()), new AsyncResSuccessHandler(helper) {
+                    @Override
+                    public View createSuccessView(String json) {
+                        isSuccess=true;
+                        return HomeFragment.this.createSuccessView(json);
+                    }
+                }
+            );
     }
 
     /**
@@ -57,7 +66,9 @@ public class HomeFragment extends MyBaseFragment implements OnLoadMoreListener {
      */
     private View createSuccessView(final String json) {
 
-        list.addAll(getAppInfoList(json));
+        Map<String,List> map =getHomeMap(json);
+        list.addAll(map.get("list"));
+        picList.addAll(map.get("picture"));
 
         View view = UiUtils.inflate(R.layout.page_list);
         final SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.page_refresh);
@@ -65,30 +76,34 @@ public class HomeFragment extends MyBaseFragment implements OnLoadMoreListener {
         recyclerView.setLayoutManager(new LinearLayoutManager(MyApplication.context));
         recyclerView.setHasFixedSize(true);
 
-        myRecyclerAdapter = new MyRecyclerAdapter(this.list, recyclerView);
+        myRecyclerAdapter = new MyRecyclerAdapter(this.list,this.picList, recyclerView);
         recyclerView.setAdapter(myRecyclerAdapter);
 
         // 利用RecyclerView的addOnChildAttachStateChangeListener监听 做的itemClick
-        /*RecyclerItemClickHelper.addOn(recyclerView).
+        // 如果item的内部控件设置了点击事件并点击，则itemClick事件不会被触发
+        RecyclerItemClickHelper.addOn(recyclerView,RecyclerNormalHolder.class,1).
         setOnItemClickListener(new RecyclerItemClickHelper.OnItemClickListener() {
             @Override
             public void onItemClick(RecyclerView recyclerView, int position, View itemView) {
-                Log.d("*****",itemView.toString());
+
+                Intent intent = new Intent(HomeFragment.this.getActivity(), AppDetailActivity.class);
+                intent.putExtra("packageName",list.get(position).getPackageName());
+                startActivity(intent);
             }
-        });*/
+        });
 
         // 利用RecyclerView的addOnItemTouchListener事件 做的itemClick
-        recyclerView.addOnItemTouchListener(new MyOnItemTouchListener(recyclerView, new MyOnItemTouchListener.OnItemClickListener() {
+        // 如果itemView内部控件也需要监听点击事件，会造成冲突，既两个事件都会发生
+        /*recyclerView.addOnItemTouchListener(new MyOnItemTouchListener(recyclerView, new MyOnItemTouchListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                Log.d("*****",view.toString()+"position: "+position);
             }
 
             @Override
             public boolean onItemLongClick(View view, int position) {
                 return false;
             }
-        }));
+        }));*/
 
 
         myRecyclerAdapter.setOnLoadMoreListener(this); //设置上拉加载更多监听
@@ -103,13 +118,15 @@ public class HomeFragment extends MyBaseFragment implements OnLoadMoreListener {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                MyApplication.client.get(MyConstant.URL_KEY_HOME, 0, new AsyncResRefreshHandler(json, swipeRefreshLayout) {
+                MyApplication.client.get(new RequestParams(MyConstant.URL_KEY_HOME,0), new AsyncResRefreshHandler(json, swipeRefreshLayout) {
                     @Override
                     public void handlerRefresh(String newJson) {
 
                         HomeFragment.this.list.clear();
                         // 更新list中的数据
-                        HomeFragment.this.list.addAll(getAppInfoList(newJson));
+                        Map<String, List> newMap = getHomeMap(newJson);
+                        HomeFragment.this.list.addAll(newMap.get("list"));
+                        HomeFragment.this.picList.addAll(newMap.get("picture"));
                         myRecyclerAdapter.notifyDataSetChanged();
                         Toast.makeText(MyApplication.context, "刷新完成", Toast.LENGTH_SHORT).show();
                         swipeRefreshLayout.setRefreshing(false);
@@ -125,9 +142,14 @@ public class HomeFragment extends MyBaseFragment implements OnLoadMoreListener {
      * @param json json
      * @return List
      */
-    private List<AppInfo> getAppInfoList(String json) {
+    private Map<String,List> getHomeMap(String json) {
+
+        Map<String,List> map = new HashMap<>();
         HomeInfo homeInfo = MyApplication.gson.fromJson(json, HomeInfo.class);
-        return Arrays.asList(homeInfo.getList());
+
+        map.put("picture",Arrays.asList(homeInfo.getPicture()));
+        map.put("list",Arrays.asList(homeInfo.getList()));
+        return map;
     }
 
     /**
@@ -139,7 +161,7 @@ public class HomeFragment extends MyBaseFragment implements OnLoadMoreListener {
         //设置adapter的isLoading，避免重复加载
         myRecyclerAdapter.isLoading();
         //准备加载更多的数据 这里应该是异步的
-        MyApplication.client.get(MyConstant.URL_KEY_HOME, list.size(), new AsyncResponseHandler() {
+        MyApplication.client.get(new RequestParams(MyConstant.URL_KEY_HOME,list.size()), new AsyncResponseHandler() {
             @Override
             public void handlerError() {
                 myRecyclerAdapter.setStateLoad(RecyclerLoadHolder.STATE_LOAD_ERROR);
@@ -156,7 +178,7 @@ public class HomeFragment extends MyBaseFragment implements OnLoadMoreListener {
 
             @Override
             public void handlerSuccess(String json) {
-                list.addAll(getAppInfoList(json));
+                list.addAll(getHomeMap(json).get("list"));
                 myRecyclerAdapter.notifyDataSetChanged();
                 myRecyclerAdapter.isLoaded();
             }

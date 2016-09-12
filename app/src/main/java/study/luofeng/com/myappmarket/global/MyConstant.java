@@ -15,7 +15,7 @@ public class MyConstant {
     //响应成功且有内容时，handler的msg的what
     public static final int HTTP_MSG_WHAT_SUCCESS=200;
 
-    public static final String BASE_URL="http://127.0.0.1:8090";
+    public static final String BASE_URL="http://127.0.0.1:8090/";
 
     public static final String URL_KEY_HOME="home"; //主页
     public static final String URL_KEY_APP="app"; //应用

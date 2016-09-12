@@ -1,5 +1,7 @@
 package study.luofeng.com.myappmarket.net;
 
+import android.view.View;
+
 import study.luofeng.com.myappmarket.event.LoadHelper;
 
 /**
@@ -26,4 +28,10 @@ public abstract class AsyncResSuccessHandler extends AsyncResponseHandler {
         //刷新pager
     }
 
+    @Override
+    public void handlerSuccess(String json) {
+        helper.onLoadSuccess(createSuccessView(json));
+    }
+
+    public abstract View createSuccessView(String json);
 }

@@ -12,13 +12,14 @@ public class RecyclerItemClickHelper {
     private RecyclerView recyclerView;
     private OnItemClickListener onItemClickListener;
     private OnItemLongClickListener onItemLongClickListener;
+    private Class viewHolderClass;
+    private int startPos;
 
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             if (onItemClickListener != null) {
-                RecyclerView.ViewHolder holder = recyclerView.getChildViewHolder(view);
-                onItemClickListener.onItemClick(recyclerView, holder.getAdapterPosition(), view);
+                onItemClickListener.onItemClick(recyclerView, recyclerView.getChildAdapterPosition(view)-startPos, view);
             }
             /*if (onItemDetailClickListener != null&&itemPos!=-1) {
                 onItemDetailClickListener.onItemDetailClick(itemPos,view);
@@ -30,8 +31,7 @@ public class RecyclerItemClickHelper {
         @Override
         public boolean onLongClick(View view) {
             if (onItemLongClickListener != null) {
-                RecyclerView.ViewHolder holder = recyclerView.getChildViewHolder(view);
-                return onItemLongClickListener.onItemLongClick(recyclerView, holder.getAdapterPosition(), view);
+                return onItemLongClickListener.onItemLongClick(recyclerView, recyclerView.getChildAdapterPosition(view)-startPos, view);
             }
             return false;
         }
@@ -42,11 +42,28 @@ public class RecyclerItemClickHelper {
                 @Override
                 public void onChildViewAttachedToWindow(View view) {
                     // 传入的view就是itemView
-                    if (onItemClickListener != null) {
-                        view.setOnClickListener(onClickListener);
-                    }
-                    if (onItemLongClickListener != null) {
-                        view.setOnLongClickListener(onLongClickListener);
+                    if (viewHolderClass == null ) { //一种item
+                        if (onItemClickListener != null) {
+                            view.setOnClickListener(onClickListener);
+                        }
+                        if (onItemLongClickListener != null) {
+                            view.setOnLongClickListener(onLongClickListener);
+                        }
+                    }else { // 多种item
+                        RecyclerView.ViewHolder holder = recyclerView.getChildViewHolder(view);
+                        // 跟传入的item的holder一样，才设置监听事件
+                        boolean b = (viewHolderClass == holder.getClass());
+//                        Log.d("*****",b+"");
+//                        Log.d("viewHolderClass",viewHolderClass.toString());
+//                        Log.d("getChildViewHolder",recyclerView.getChildViewHolder(view).getClass().toString());
+                        if (b){
+                            if (onItemClickListener != null) {
+                                view.setOnClickListener(onClickListener);
+                            }
+                            if (onItemLongClickListener != null) {
+                                view.setOnLongClickListener(onLongClickListener);
+                            }
+                        }
                     }
 
                     /*if (onItemDetailClickListener != null) {
@@ -63,18 +80,36 @@ public class RecyclerItemClickHelper {
                 }
             };
 
-    private RecyclerItemClickHelper(RecyclerView recyclerView) {
+    private RecyclerItemClickHelper(RecyclerView recyclerView, Class viewHolderClass,int startPos) {
         this.recyclerView = recyclerView;
+        this.viewHolderClass = viewHolderClass;
         this.recyclerView.setTag(recyclerView.getId(), this);
+        this.startPos=startPos;
         recyclerView.addOnChildAttachStateChangeListener(onChildAttachStateChangeListener);
     }
 
-    public static RecyclerItemClickHelper addOn(RecyclerView recyclerView) {
+    /**
+     * 多item类型
+     * @param recyclerView recyclerView
+     * @param viewHolderClass 要设置itemClick的view的Holder类型
+     * @param startPos 开始的位置
+     * @return RecyclerItemClickHelper
+     */
+    public static RecyclerItemClickHelper addOn(RecyclerView recyclerView, Class viewHolderClass,int startPos) {
         RecyclerItemClickHelper recyclerItemClickHelper = (RecyclerItemClickHelper) recyclerView.getTag(recyclerView.getId());
         if (recyclerItemClickHelper == null) {
-            return new RecyclerItemClickHelper(recyclerView);
+            return new RecyclerItemClickHelper(recyclerView, viewHolderClass,startPos);
         }
         return recyclerItemClickHelper;
+    }
+
+    /**
+     * 单item类型
+     * @param recyclerView recyclerView
+     * @return RecyclerItemClickHelper
+     */
+    public static RecyclerItemClickHelper addOn(RecyclerView recyclerView) {
+        return addOn(recyclerView,null,0);
     }
 
     public static RecyclerItemClickHelper removeFrom(RecyclerView recyclerView) {

@@ -54,6 +54,7 @@
                     android:layout_height="wrap_content"
                     android:paddingBottom="6dp"
                     android:paddingTop="6dp"
+                    android:progressTint="@color/colorPrimary"
                     android:rating="3" />
 
                 <TextView

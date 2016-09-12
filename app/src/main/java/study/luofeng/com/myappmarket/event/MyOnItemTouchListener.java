@@ -2,6 +2,7 @@ package study.luofeng.com.myappmarket.event;
 
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -29,12 +30,12 @@ public class MyOnItemTouchListener extends RecyclerView.SimpleOnItemTouchListene
         compat = new GestureDetectorCompat(MyApplication.context, new SimpleGestureListener());
     }
 
-
-    @Override
-    public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-        compat.onTouchEvent(e);
-    }
-
+    /**
+     * 重写该方法，把事件传递给GestureDetectorCompat处理
+     * @param rv RecyclerView
+     * @param e MotionEvent
+     * @return 是否拦截给子view传递事件
+     */
     @Override
     public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
         compat.onTouchEvent(e);

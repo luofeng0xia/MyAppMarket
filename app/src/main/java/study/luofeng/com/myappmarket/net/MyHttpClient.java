@@ -1,9 +1,11 @@
 package study.luofeng.com.myappmarket.net;
 
 import android.os.Message;
+import android.util.Log;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -11,8 +13,9 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import study.luofeng.com.myappmarket.global.MyConstant;
+import study.luofeng.com.myappmarket.bean.RequestParams;
 import study.luofeng.com.myappmarket.event.HttpHandler;
+import study.luofeng.com.myappmarket.global.MyConstant;
 
 /**
  * MyHttpClient
@@ -42,15 +45,50 @@ public class MyHttpClient {
         return client;
     }
 
-    /**
-     * 拼接url
-     * @param modelKey 模块关键字
-     * @param index 从第几个数据开始获取
-     * @param handler 异步响应
-     */
-    public void get(String modelKey,int index,AsyncResponseHandler handler){
+    // 参数未封装之前写法
+    /*public void get(String modelKey,int index,AsyncResponseHandler handler){
         String url=MyConstant.BASE_URL+"/"+modelKey+"?index="+index;
         get(url,handler);
+    }*/
+
+    /**
+     * 把参数封装之后
+     * @param params 参数
+     * @param handler handler
+     */
+    public void get(RequestParams params,AsyncResponseHandler handler){
+        get(getUrlFromParams(params),handler);
+    }
+
+    /**
+     * 拼接url
+     * @param params params
+     * @return url
+     */
+    private String getUrlFromParams(RequestParams params){
+        StringBuilder sb = new StringBuilder();
+        sb.append(MyConstant.BASE_URL);
+        String model = params.getModel();
+        if (model!=null&&!model.trim().isEmpty()){
+            sb.append(model);
+        }
+        int index = params.getIndex();
+        if (index!=-1){
+            sb.append("?index=");
+            sb.append(index);
+        }
+        Map<String, String> requestMap = params.getRequestMap();
+        if (requestMap.size()>0){
+            for (Map.Entry<String,String> entry :
+                    requestMap.entrySet()) {
+                sb.append("&");
+                sb.append(entry.getKey());
+                sb.append("=");
+                sb.append(entry.getValue());
+            }
+        }
+//        Log.d("url",sb.toString());
+        return sb.toString();
     }
 
     /**

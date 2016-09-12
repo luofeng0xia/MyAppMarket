@@ -34,4 +34,6 @@ dependencies {
         exclude group: 'glide-parent'
     }
     compile 'com.android.support:support-v4:24.2.0'
+
+    compile 'com.jude:rollviewpager:1.4.5'
 }
