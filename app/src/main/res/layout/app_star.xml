@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RatingBar xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rb_app_star"
+    style="@android:style/Widget.DeviceDefault.RatingBar.Small"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingBottom="6dp"
+    android:paddingTop="6dp"
+    android:progressTint="@color/colorPrimary"
+    android:rating="3" />

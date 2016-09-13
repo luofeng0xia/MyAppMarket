@@ -21,15 +21,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <ImageView
-                android:id="@+id/iv_app_icon"
-                android:minWidth="50dp"
-                android:minHeight="50dp"
+            <include layout="@layout/app_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_centerVertical="true"
-                android:src="@mipmap/ic_default" />
+                />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -47,15 +44,9 @@
                     android:paddingTop="6dp"
                     android:text="有缘网" />
 
-                <RatingBar
-                    android:id="@+id/rb_app_star"
-                    style="@android:style/Widget.DeviceDefault.RatingBar.Small"
+                <include layout="@layout/app_star"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="6dp"
-                    android:paddingTop="6dp"
-                    android:progressTint="@color/colorPrimary"
-                    android:rating="3" />
+                    android:layout_height="wrap_content"/>
 
                 <TextView
                     android:id="@+id/tv_app_size"
